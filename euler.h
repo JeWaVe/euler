@@ -1,29 +1,28 @@
-#pragma once
-
 #include <utility>
 #include <cstdint>
 #include <type_traits>
+#include <algorithm>
 
 namespace euler
 {
-	template<int p, int q, typename E = void>
+	template<int64_t p, int64_t q, typename E = void>
 	struct rational;
 
-	template<int p>
+	template<int64_t p>
 	struct integer;
 
-	template<int a, int b>
+	template<int64_t a, int64_t b>
 	struct gcd {
-		static constexpr int val = gcd<b, a - (a / b) * b>::val;
+		static constexpr int64_t val = gcd<b, a - (a / b) * b>::val;
 	};
 
-	template<int a>
+	template<int64_t a>
 	struct gcd<a, 0> {
-		static constexpr int val = a > 0 ? a : -a;
+		static constexpr int64_t val = a > 0 ? a : -a;
 	};
 
-	template<int p, int q>
-	struct rational<p, q, typename std::enable_if<q != 0>::type> {
+	template<int64_t p, int64_t q>
+	struct rational<p, q, typename ::std::enable_if<q != 0>::type> {
 
 		explicit constexpr operator float() const {
 			return (float)p / (float)q;
@@ -41,7 +40,7 @@ namespace euler
 			return ((double)p * x) / (double)q;
 		}
 
-		template<int p1, int q1>
+		template<int64_t p1, int64_t q1>
 		constexpr auto operator * (const rational<p1, q1>&) const {
 			constexpr auto p2 = p * p1;
 			constexpr auto q2 = q * q1;
@@ -50,7 +49,7 @@ namespace euler
 			return rational<p2 / div, q2 / div> {};
 		}
 
-		template<int p1, int q1>
+		template<int64_t p1, int64_t q1>
 		constexpr auto operator / (const rational<p1, q1>&) const {
 			constexpr auto p2 = p * q1;
 			constexpr auto q2 = q * p1;
@@ -59,7 +58,7 @@ namespace euler
 			return rational<p2 / div, q2 / div> {};
 		}
 
-		template<int p1, int q1>
+		template<int64_t p1, int64_t q1>
 		constexpr auto operator + (const rational<p1, q1>&) const {
 			constexpr auto p2 = p * q1 + q * p1;
 			constexpr auto q2 = q * q1;
@@ -68,7 +67,7 @@ namespace euler
 			return rational<p2 / div, q2 / div> {};
 		}
 
-		template<int p1, int q1>
+		template<int64_t p1, int64_t q1>
 		constexpr auto operator - (const rational<p1, q1>&) const {
 			constexpr auto p2 = p * q1 - q * p1;
 			constexpr auto q2 = q * q1;
@@ -78,8 +77,11 @@ namespace euler
 		}
 	};
 
-	template<int p>
-	struct integer : rational<p, 1> {};
+	template<int64_t p>
+	struct integer : rational<p, 1>
+	{
+		static constexpr int64_t val = p;
+	};
 
 
 	template<typename T, typename ...coefficients>
@@ -97,7 +99,7 @@ namespace euler
 	template<> struct constants<char> { static constexpr char zero = 0; };
 	template<> struct constants<unsigned char> { static constexpr unsigned char zero = 0; };
 
-	template <int i, typename T, typename... Ts>
+	template <int64_t i, typename T, typename... Ts>
 	struct type_at
 	{
 		static_assert(i < sizeof...(Ts) + 1, "index out of range");
@@ -117,13 +119,13 @@ namespace euler
 	template<typename T, typename ...As, typename ...Bs>
 	constexpr auto mul(polynomial<T, As...> a, polynomial<T, Bs...> b);
 
-	template<int index, int stop>
+	template<int64_t index, int64_t stop>
 	struct poly_eval_helper
 	{
 		template<typename T, typename ...coefficients>
 		static constexpr T apply(const T& accum, const T& x)
 		{
-			constexpr int N = sizeof...(coefficients);
+			constexpr int64_t N = sizeof...(coefficients);
 			if constexpr (N == 0)
 			{
 				return constants<T>::zero;
@@ -136,7 +138,7 @@ namespace euler
 		}
 	};
 
-	template<int stop>
+	template<int64_t stop>
 	struct poly_eval_helper<-1, stop> {
 		template<typename T, typename ...coefficients>
 		static constexpr T apply(const T& accum, const T& x)
@@ -148,7 +150,7 @@ namespace euler
 	template<typename T, typename ...coefficients>
 	struct polynomial
 	{
-		template<int index>
+		template<int64_t index>
 		constexpr auto coeff_at() const {
 			if constexpr (index < 0 || index >= sizeof...(coefficients)) {
 				return integer<0> {};
@@ -185,7 +187,7 @@ namespace euler
 		}
 	};
 
-	template<typename T, int k, typename ...As, typename ...Bs>
+	template<typename T, int64_t k, typename ...As, typename ...Bs>
 	constexpr auto add_at(const polynomial<T, As...> a, const polynomial<T, Bs...> b) {
 		return a.template coeff_at<k>() + b.template coeff_at<k>();
 	}
@@ -200,7 +202,7 @@ namespace euler
 		return add_low(a, b, std::make_index_sequence<std::max(sizeof...(As), sizeof...(Bs))>());
 	}
 
-	template<typename T, int k, typename ...As, typename ...Bs>
+	template<typename T, int64_t k, typename ...As, typename ...Bs>
 	constexpr auto sub_at(const polynomial<T, As...> a, const polynomial<T, Bs...> b) {
 		return a.template coeff_at<k>() - b.template coeff_at<k>();
 	}
@@ -215,7 +217,7 @@ namespace euler
 		return sub_low(a, b, std::make_index_sequence<sizeof...(As) + sizeof...(Bs) - 1>());
 	}
 
-	template<typename T, int k, int index, int stop>
+	template<typename T, int64_t k, int64_t index, int64_t stop>
 	struct mul_at_loop_helper {
 		template<typename... As, typename... Bs>
 		static constexpr auto apply(polynomial<T, As...> a, polynomial<T, Bs...> b)
@@ -224,7 +226,7 @@ namespace euler
 		}
 	};
 
-	template<typename T, int k, int stop>
+	template<typename T, int64_t k, int64_t stop>
 	struct mul_at_loop_helper<T, k, stop, stop> {
 		template<typename... As, typename... Bs>
 		static constexpr auto apply(polynomial<T, As...> a, polynomial<T, Bs...> b)
@@ -233,7 +235,7 @@ namespace euler
 		}
 	};
 
-	template<typename T, int k, typename ...As, typename ...Bs>
+	template<typename T, int64_t k, typename ...As, typename ...Bs>
 	constexpr auto mul_at2(polynomial<T, As...> a, polynomial<T, Bs...> b) {
 		if constexpr (k < 0 || k >= sizeof...(As) + sizeof...(Bs))
 		{
@@ -245,7 +247,7 @@ namespace euler
 		}
 	}
 
-	template<typename T, typename ...As, typename ...Bs, size_t ...I>
+	template<typename T, typename ...As, typename ...Bs, std::size_t ...I>
 	constexpr auto mul_low(polynomial<T, As...>, polynomial<T, Bs...>, std::index_sequence<I...>) {
 		return polynomial < T, decltype(mul_at2<T, I>(polynomial<T, As...>{}, polynomial<T, Bs...>{}))... > {};
 	}
@@ -256,7 +258,7 @@ namespace euler
 	}
 
 	// (-1)^n
-	template<int n>
+	template<int64_t n>
 	struct alternate {
 		static constexpr int64_t val = n & 1 ? -1 : 1;
 	};
@@ -265,7 +267,7 @@ namespace euler
 	struct factorial { static constexpr int64_t val = factorial<n - 1>::val * n; };
 
 	template<>
-	struct factorial<0> { static constexpr int val = 1; };
+	struct factorial<0> { static constexpr int64_t val = 1; };
 
 	// how to implement taylor series -- some examples
 	template<class, class>
@@ -289,128 +291,128 @@ namespace euler
 	template<class, class>
 	struct make_geom_impl;
 
-	template<typename T, int... Is>
-	struct make_exp_impl<T, std::integer_sequence<int, Is...>> {
+	template<typename T, int64_t... Is>
+	struct make_exp_impl<T, std::integer_sequence<int64_t, Is...>> {
 		using type = polynomial<T, rational<1, factorial<Is>::val>...>;
 	};
 
-	template<typename T, int... Is>
-	struct make_lnp1_impl<T, std::integer_sequence<int, Is...>> {
+	template<typename T, int64_t... Is>
+	struct make_lnp1_impl<T, std::integer_sequence<int64_t, Is...>> {
 		using type = polynomial<T, rational<0, 1>, rational<alternate<Is>::val, Is + 1>...>;
 	};
 
-	template<int i, typename E = void>
+	template<int64_t i, typename E = void>
 	struct sin_coeff {};
 
-	template<int i>
+	template<int64_t i>
 	struct sin_coeff<i, typename std::enable_if<(i & 1) == 0>::type> {
 		using type = rational<0, 1>;
 	};
 
-	template<int i>
+	template<int64_t i>
 	struct sin_coeff<i, typename std::enable_if<(i & 1) == 1>::type> {
 		using type = rational<alternate<i / 2>::val, factorial<i>::val>;
 	};
 
-	template<typename T, int... Is>
-	struct make_sin_impl<T, std::integer_sequence<int, Is...>> {
+	template<typename T, int64_t... Is>
+	struct make_sin_impl<T, std::integer_sequence<int64_t, Is...>> {
 		using type = polynomial<T, typename sin_coeff<Is>::type...>;
 	};
 
-	template<int i, typename E = void>
+	template<int64_t i, typename E = void>
 	struct sh_coeff {};
 
-	template<int i>
+	template<int64_t i>
 	struct sh_coeff<i, typename std::enable_if<(i & 1) == 0>::type> {
 		using type = rational<0, 1>;
 	};
 
-	template<int i>
+	template<int64_t i>
 	struct sh_coeff<i, typename std::enable_if<(i & 1) == 1>::type> {
 		using type = rational<1, factorial<i>::val>;
 	};
 
-	template<typename T, int... Is>
-	struct make_sh_impl<T, std::integer_sequence<int, Is...>> {
+	template<typename T, int64_t... Is>
+	struct make_sh_impl<T, std::integer_sequence<int64_t, Is...>> {
 		using type = polynomial<T, typename sh_coeff<Is>::type...>;
 	};
 
-	template<int i, typename E = void>
+	template<int64_t i, typename E = void>
 	struct cos_coeff {};
 
-	template<int i>
+	template<int64_t i>
 	struct cos_coeff<i, typename std::enable_if<(i & 1) == 1>::type> {
 		using type = rational<0, 1>;
 	};
 
-	template<int i>
+	template<int64_t i>
 	struct cos_coeff<i, typename std::enable_if<(i & 1) == 0>::type> {
 		using type = rational<alternate<i / 2>::val, factorial<i>::val>;
 	};
 
-	template<typename T, int... Is>
-	struct make_cos_impl<T, std::integer_sequence<int, Is...>> {
+	template<typename T, int64_t... Is>
+	struct make_cos_impl<T, std::integer_sequence<int64_t, Is...>> {
 		using type = polynomial<T, typename cos_coeff<Is>::type...>;
 	};
 
 
-	template<int i, typename E = void>
+	template<int64_t i, typename E = void>
 	struct cosh_coeff {};
 
-	template<int i>
+	template<int64_t i>
 	struct cosh_coeff<i, typename std::enable_if<(i & 1) == 1>::type> {
 		using type = rational<0, 1>;
 	};
 
-	template<int i>
+	template<int64_t i>
 	struct cosh_coeff<i, typename std::enable_if<(i & 1) == 0>::type> {
 		using type = rational<1, factorial<i>::val>;
 	};
 
-	template<typename T, int... Is>
-	struct make_cosh_impl<T, std::integer_sequence<int, Is...>> {
+	template<typename T, int64_t... Is>
+	struct make_cosh_impl<T, std::integer_sequence<int64_t, Is...>> {
 		using type = polynomial<T, typename cosh_coeff<Is>::type...>;
 	};
 
-	template<int i, typename E = void>
+	template<int64_t i, typename E = void>
 	struct geom_coeff { using type = rational<1, 1>; };
 
-	template<typename T, int... Is>
-	struct make_geom_impl<T, std::integer_sequence<int, Is...>> {
+	template<typename T, int64_t... Is>
+	struct make_geom_impl<T, std::integer_sequence<int64_t, Is...>> {
 		using type = polynomial<T, typename geom_coeff<Is>::type...>;
 	};
 
 	/// ln(1+x)
-	template<typename T, int deg>
-	using lnp1 = typename make_lnp1_impl<T, std::make_integer_sequence<int, deg>>::type;
+	template<typename T, int64_t deg>
+	using lnp1 = typename make_lnp1_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
 
 	/// e^x
-	template<typename T, int deg>
-	using exp = typename make_exp_impl<T, std::make_integer_sequence<int, deg>>::type;
+	template<typename T, int64_t deg>
+	using exp = typename make_exp_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
 
 	/// sin(x)
-	template<typename T, int deg>
-	using sin = typename make_sin_impl<T, std::make_integer_sequence<int, deg>>::type;
+	template<typename T, int64_t deg>
+	using sin = typename make_sin_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
 
 	/// sh(x)
-	template<typename T, int deg>
-	using sinh = typename make_sh_impl<T, std::make_integer_sequence<int, deg>>::type;
+	template<typename T, int64_t deg>
+	using sinh = typename make_sh_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
 
 	/// ch(x)
-	template<typename T, int deg>
-	using cosh = typename make_cosh_impl<T, std::make_integer_sequence<int, deg>>::type;
+	template<typename T, int64_t deg>
+	using cosh = typename make_cosh_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
 
 	/// cos(x)
-	template<typename T, int deg>
-	using cos = typename make_cos_impl<T, std::make_integer_sequence<int, deg>>::type;
+	template<typename T, int64_t deg>
+	using cos = typename make_cos_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
 
 	/// 1 / (1-x)
-	template<typename T, int deg>
-	using geometric_sum = typename make_geom_impl<T, std::make_integer_sequence<int, deg>>::type;
+	template<typename T, int64_t deg>
+	using geometric_sum = typename make_geom_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
 
 	namespace integers
 	{
-		template <typename T, int ...coefficients>
+		template <typename T, int64_t ...coefficients>
 		struct polynomial : ::euler::polynomial<T, integer<coefficients>...> { };
 	}
-} // end namespace hybridizer
+} // end namespace euler
