@@ -1,0 +1,2 @@
+# euler
+compile time polynomials
