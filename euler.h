@@ -414,5 +414,31 @@ namespace euler
 	{
 		template <typename T, int64_t ...coefficients>
 		struct polynomial : ::euler::polynomial<T, integer<coefficients>...> { };
+
+		template<int64_t k, int64_t n, typename E = void>
+		struct binomial_helper;
+
+		template<int64_t k, int64_t n>
+		struct binomial_helper<k, n, typename std::enable_if<(n >= 0 && k <= n / 2 && k > 0)>::type> 
+		{
+			static constexpr auto val = binomial_helper<k - 1, n - 1>::val * rational<n, k>{};
+		};
+
+		template<int64_t k, int64_t n>
+		struct binomial_helper<k, n, typename std::enable_if<(n >= 0 && k > (n / 2) && k > 0)>::type>
+		{
+			static constexpr auto val = binomial_helper<n - k, n>::val;
+		};
+
+		template<int64_t n>
+		struct binomial_helper<0, n, typename std::enable_if<(n >= 0)>::type>
+		{
+			static constexpr auto val = rational<1, 1>{};
+		};
+
+		template<int64_t k, int64_t n>
+		struct binomial {
+			static constexpr auto val = binomial_helper<k, n>::val;
+		};
 	}
 } // end namespace euler
