@@ -13,7 +13,9 @@ using serie = euler::taylor<T, my_coeff, d>;
 int main()
 {
 	constexpr auto a = euler::integers::binomial<12, 128>::val;
-	constexpr serie<double, 15> e;
+	constexpr euler::atan<double, 15> e;
 	constexpr auto result = e(0.1);
+
+	constexpr auto zou = euler::integers::bernouilli<12>::val;
 	::printf("%.17lf\n", result);
 }

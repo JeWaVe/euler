@@ -11,6 +11,16 @@ namespace euler
 
 		template <typename T, int64_t ...coefficients>
 		struct polynomial;
+
+		template<int m>
+		struct bernouilli;
+
+		// (-1)^n
+		template<int64_t n>
+		struct alternate;
+
+		template<int64_t n>
+		struct factorial;
 	}
 
 	template<int64_t p, int64_t q, typename E = void>
@@ -264,19 +274,6 @@ namespace euler
 	constexpr auto mul(polynomial<T, As...> a, polynomial<T, Bs...> b) {
 		return mul_low(a, b, std::make_index_sequence<sizeof...(As) + sizeof...(Bs) - 1>());
 	}
-
-	// (-1)^n
-	template<int64_t n>
-	struct alternate {
-		static constexpr int64_t val = n & 1 ? -1 : 1;
-	};
-
-	template<int64_t n>
-	struct factorial { static constexpr int64_t val = factorial<n - 1>::val * n; };
-
-	template<>
-	struct factorial<0> { static constexpr int64_t val = 1; };
-
 	// how to implement taylor series -- some examples
 
 	template<template<auto index> typename, typename, class>
@@ -292,145 +289,138 @@ namespace euler
 	template<typename T, template<auto index> typename coeff_at, int64_t deg>
 	using taylor = typename make_taylor_impl<coeff_at, T, std::make_integer_sequence<int64_t, deg>>::type;
 
-	template<class, class>
-	struct make_exp_impl;
+	template<int64_t i>
+	struct lnp1_coeff { using type = rational<integers::alternate<i + 1>::val, i>; };
 
-	template<class, class>
-	struct make_lnp1_impl;
+	template<>
+	struct lnp1_coeff<0> { using type = rational<0, 1>; };
 
-	template<class, class>
-	struct make_sin_impl;
-
-	template<class, class>
-	struct make_sh_impl;
-
-	template<class, class>
-	struct make_cos_impl;
-
-	template<class, class>
-	struct make_cosh_impl;
-
-	template<class, class>
-	struct make_geom_impl;
-
-	template<typename T, int64_t... Is>
-	struct make_exp_impl<T, std::integer_sequence<int64_t, Is...>> {
-		using type = polynomial<T, rational<1, factorial<Is>::val>...>;
-	};
-
-	template<typename T, int64_t... Is>
-	struct make_lnp1_impl<T, std::integer_sequence<int64_t, Is...>> {
-		using type = polynomial<T, rational<0, 1>, rational<alternate<Is>::val, Is + 1>...>;
-	};
 
 	template<int64_t i, typename E = void>
-	struct sin_coeff {};
+	struct sin_coeff_helper {};
 
 	template<int64_t i>
-	struct sin_coeff<i, typename std::enable_if<(i & 1) == 0>::type> {
+	struct sin_coeff_helper<i, typename std::enable_if<(i & 1) == 0>::type> {
 		using type = rational<0, 1>;
 	};
 
 	template<int64_t i>
-	struct sin_coeff<i, typename std::enable_if<(i & 1) == 1>::type> {
-		using type = rational<alternate<i / 2>::val, factorial<i>::val>;
+	struct sin_coeff_helper<i, typename std::enable_if<(i & 1) == 1>::type> {
+		using type = rational<integers::alternate<i / 2>::val, integers::factorial<i>::val>;
 	};
 
-	template<typename T, int64_t... Is>
-	struct make_sin_impl<T, std::integer_sequence<int64_t, Is...>> {
-		using type = polynomial<T, typename sin_coeff<Is>::type...>;
+	template<int64_t i>
+	struct sin_coeff {
+		using type = typename sin_coeff_helper<i>::type;
 	};
 
 	template<int64_t i, typename E = void>
-	struct sh_coeff {};
+	struct sh_coeff_helper {};
 
 	template<int64_t i>
-	struct sh_coeff<i, typename std::enable_if<(i & 1) == 0>::type> {
+	struct sh_coeff_helper<i, typename std::enable_if<(i & 1) == 0>::type> {
 		using type = rational<0, 1>;
 	};
 
 	template<int64_t i>
-	struct sh_coeff<i, typename std::enable_if<(i & 1) == 1>::type> {
-		using type = rational<1, factorial<i>::val>;
+	struct sh_coeff_helper<i, typename std::enable_if<(i & 1) == 1>::type> {
+		using type = rational<1, integers::factorial<i>::val>;
 	};
 
-	template<typename T, int64_t... Is>
-	struct make_sh_impl<T, std::integer_sequence<int64_t, Is...>> {
-		using type = polynomial<T, typename sh_coeff<Is>::type...>;
+	template<int64_t i>
+	struct sh_coeff {
+		using type = typename sh_coeff_helper<i>::type;
 	};
 
 	template<int64_t i, typename E = void>
-	struct cos_coeff {};
+	struct cos_coeff_helper {};
 
 	template<int64_t i>
-	struct cos_coeff<i, typename std::enable_if<(i & 1) == 1>::type> {
+	struct cos_coeff_helper<i, typename std::enable_if<(i & 1) == 1>::type> {
 		using type = rational<0, 1>;
 	};
 
 	template<int64_t i>
-	struct cos_coeff<i, typename std::enable_if<(i & 1) == 0>::type> {
-		using type = rational<alternate<i / 2>::val, factorial<i>::val>;
+	struct cos_coeff_helper<i, typename std::enable_if<(i & 1) == 0>::type> {
+		using type = rational<integers::alternate<i / 2>::val, integers::factorial<i>::val>;
 	};
-
-	template<typename T, int64_t... Is>
-	struct make_cos_impl<T, std::integer_sequence<int64_t, Is...>> {
-		using type = polynomial<T, typename cos_coeff<Is>::type...>;
-	};
-
-
-	template<int64_t i, typename E = void>
-	struct cosh_coeff {};
 
 	template<int64_t i>
-	struct cosh_coeff<i, typename std::enable_if<(i & 1) == 1>::type> {
+	struct cos_coeff {
+		using type = typename cos_coeff_helper<i>::type;
+	};
+
+	template<int64_t i, typename E = void>
+	struct cosh_coeff_helper {};
+
+	template<int64_t i>
+	struct cosh_coeff_helper<i, typename std::enable_if<(i & 1) == 1>::type> {
 		using type = rational<0, 1>;
 	};
 
 	template<int64_t i>
-	struct cosh_coeff<i, typename std::enable_if<(i & 1) == 0>::type> {
-		using type = rational<1, factorial<i>::val>;
+	struct cosh_coeff_helper<i, typename std::enable_if<(i & 1) == 0>::type> {
+		using type = rational<1, integers::factorial<i>::val>;
 	};
 
-	template<typename T, int64_t... Is>
-	struct make_cosh_impl<T, std::integer_sequence<int64_t, Is...>> {
-		using type = polynomial<T, typename cosh_coeff<Is>::type...>;
+	template<int64_t i>
+	struct cosh_coeff {
+		using type = typename cosh_coeff_helper<i>::type;
 	};
 
-	template<int64_t i, typename E = void>
+	template<int64_t i>
 	struct geom_coeff { using type = rational<1, 1>; };
 
-	template<typename T, int64_t... Is>
-	struct make_geom_impl<T, std::integer_sequence<int64_t, Is...>> {
-		using type = polynomial<T, typename geom_coeff<Is>::type...>;
+	template<int64_t i>
+	struct exp_coeff { using type = rational<1, integers::factorial<i>::val>; };
+
+	template<int64_t i, typename E = void>
+	struct atan_coeff_helper;
+
+	template<int64_t i>
+	struct atan_coeff_helper<i, typename std::enable_if<(i & 1) == 1>::type> {
+		using type = rational<integers::alternate<i / 2>::val, i>;
 	};
+
+	template<int64_t i>
+	struct atan_coeff_helper<i, typename std::enable_if<(i & 1) == 0>::type> {
+		using type = rational<0, 1>;
+	};
+
+	template<int64_t i>
+	struct atan_coeff { using type = typename atan_coeff_helper<i>::type; };
 
 	/// ln(1+x)
 	template<typename T, int64_t deg>
-	using lnp1 = typename make_lnp1_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
+	using lnp1 = taylor<T, lnp1_coeff, deg>;
+
+	/// atan(x);
+	template<typename T, int64_t deg>
+	using atan = taylor<T, atan_coeff, deg>;
 
 	/// e^x
 	template<typename T, int64_t deg>
-	using exp = typename make_exp_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
+	using exp = taylor<T, exp_coeff, deg>;
 
 	/// sin(x)
 	template<typename T, int64_t deg>
-	using sin = typename make_sin_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
+	using sin = taylor<T, sin_coeff, deg>;
 
 	/// sh(x)
 	template<typename T, int64_t deg>
-	using sinh = typename make_sh_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
+	using sinh = taylor<T, sh_coeff, deg>;
 
 	/// ch(x)
 	template<typename T, int64_t deg>
-	using cosh = typename make_cosh_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
+	using cosh = taylor<T, cosh_coeff, deg>;
 
 	/// cos(x)
 	template<typename T, int64_t deg>
-	using cos = typename make_cos_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
+	using cos = taylor<T, cos_coeff, deg>;
 
 	/// 1 / (1-x)
 	template<typename T, int64_t deg>
-	using geometric_sum = typename make_geom_impl<T, std::make_integer_sequence<int64_t, deg>>::type;
+	using geometric_sum = taylor<T, geom_coeff, deg>;
 
 	namespace integers
 	{
@@ -462,5 +452,47 @@ namespace euler
 		struct binomial {
 			static constexpr auto val = binomial_helper<k, n>::val;
 		};
+
+		template<int m>
+		struct bernouilli;
+
+		template<int k, int m>
+		struct bernouilli_helper {
+			template<typename Taccum>
+			static constexpr auto compute(const Taccum& accum) {
+					return bernouilli_helper<k+1, m>::template compute(accum + binomial<k, m+1>::val * bernouilli<k>::val);
+			}
+		};
+
+		template<int stop>
+		struct bernouilli_helper<stop, stop> {
+			template<typename Taccum>
+			static constexpr auto compute(const Taccum& accum) {
+				return accum;
+			}
+		};
+
+		template<int m>
+		struct bernouilli {
+			static constexpr auto val = bernouilli_helper<0, m>::template compute(rational<0, 1>{}) * rational<-1, m + 1> {};
+		};
+
+		template<>
+		struct bernouilli<0> {
+			static constexpr auto val = rational<1, 1>{};
+		};
+
+
+		// (-1)^n
+		template<int64_t n>
+		struct alternate {
+			static constexpr int64_t val = n & 1 ? -1 : 1;
+		};
+
+		template<int64_t n>
+		struct factorial { static constexpr int64_t val = factorial<n - 1>::val * n; };
+
+		template<>
+		struct factorial<0> { static constexpr int64_t val = 1; };
 	}
 } // end namespace euler
