@@ -1,6 +1,10 @@
 # euler
 compile time polynomials
 
+## requirements
+- this is a single-header file (euler.h)
+- any c++-17 compatible compiler
+
 ## supported constructs
 ### integer constants
 - rational number
