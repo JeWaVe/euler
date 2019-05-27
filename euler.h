@@ -5,6 +5,14 @@
 
 namespace euler
 {
+	namespace integers {
+		template<int64_t k, int64_t n>
+		struct binomial;
+
+		template <typename T, int64_t ...coefficients>
+		struct polynomial;
+	}
+
 	template<int64_t p, int64_t q, typename E = void>
 	struct rational;
 
@@ -270,6 +278,20 @@ namespace euler
 	struct factorial<0> { static constexpr int64_t val = 1; };
 
 	// how to implement taylor series -- some examples
+
+	template<template<auto index> typename, typename, class>
+	struct make_taylor_impl;
+
+	template<template<auto index> typename coeff_at, typename T, int64_t... Is>
+	struct make_taylor_impl<coeff_at, T, std::integer_sequence<int64_t, Is...>> {
+		using type = polynomial<T, typename coeff_at<Is>::type...>;
+	};
+
+	// generic taylor serie, depending on coefficients
+	// TODO: use that for all series below
+	template<typename T, template<auto index> typename coeff_at, int64_t deg>
+	using taylor = typename make_taylor_impl<coeff_at, T, std::make_integer_sequence<int64_t, deg>>::type;
+
 	template<class, class>
 	struct make_exp_impl;
 
