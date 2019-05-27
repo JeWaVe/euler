@@ -482,7 +482,6 @@ namespace euler
 			static constexpr auto val = rational<1, 1>{};
 		};
 
-
 		// (-1)^n
 		template<int64_t n>
 		struct alternate {
