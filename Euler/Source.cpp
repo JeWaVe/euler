@@ -4,7 +4,7 @@
 
 template<int64_t i>
 struct my_coeff {
-	using type = decltype(euler::integers::bernouilli<i>::val / euler::rational<euler::integers::factorial<i>::val, 1>{});
+	using type = decltype(euler::integers::bernouilli<i>::val / euler::rational64<euler::integers::factorial<i>::val, 1>{});
 };
 
 template<typename T, int deg>
