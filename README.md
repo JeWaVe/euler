@@ -9,7 +9,7 @@ compile time polynomials
 ### integer constants
 - rational number
 ```cpp
-euler::rational<p, q> r; // p/q
+euler::rational64<p, q> r; // p/q
 ```
 supports following operators : `*,+,/,-`
 - binomial coefficients
@@ -31,12 +31,12 @@ euler::integers::factorial<n>::val // n! (int64_t)
 
 ### greatest common divisor
 ```cpp
-euler::gcd<12, 18>::val // 6
+euler::gcd<euler::int32<12>, euler::int32<18>>::val // 6
 ```
 
 ### polynomials
 ```cpp
-euler::polynomial<T, rational...>
+euler::polynomial64<T, rational...>
 ```
 T can be any type castable to float and double
 supports operators `+,*,-` (TODO: division)
@@ -59,11 +59,11 @@ here is an example for the function [x / (e^x - 1)](https://fr.wikipedia.org/wik
 ```cpp
 template<int64_t i>
 struct my_coeff {
-	using type = decltype(euler::integers::bernouilli<i>::val / euler::rational<euler::integers::factorial<i>::val, 1>{});
+	using type = decltype(integers::bernouilli<i>::val / rational64<integers::factorial<i>::val, 1>{});
 };
 
-template<typename T, int deg>
-using my_func = euler::taylor<T, my_coeff, deg>;
+template<int deg>
+using my_func = taylor<double, my_coeff, deg>;
 ``` 
 Example in VS 2019:
 ![toto](./images/taylor.png)
