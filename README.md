@@ -1,6 +1,10 @@
 # euler
 compile time polynomials
 
+## requirements
+- this is a single-header file (euler.h)
+- any c++-17 compatible compiler
+
 ## supported constructs
 ### integer constants
 - rational number
@@ -61,7 +65,8 @@ struct my_coeff {
 template<typename T, int deg>
 using my_func = euler::taylor<T, my_coeff, deg>;
 ``` 
-
+Example in VS 2019:
+![toto](./images/taylor.png)
 
 
 
