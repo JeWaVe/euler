@@ -273,7 +273,7 @@ namespace euler {
 		{
 			static_assert(sizeof...(coefficients) > 0, "invalid argument in poly_simplify");
 			static_assert(N < sizeof...(coefficients), "invalid argument in poly_simplify");
-			if constexpr (N <= 0)
+			if constexpr (N < 0)
 			{
 				return polynomial<T, rational_type, typename type_at<0, coefficients...>::type::zero_type> {};
 			}
@@ -368,28 +368,6 @@ namespace euler {
 		template<typename ...Bs>
 		constexpr auto operator/(const polynomial<T, rational_type, Bs...> b) const {
 			return div(*this, b);
-		}
-	};
-
-	// divides p by X^deg
-	template<int64_t deg>
-	struct div_monomial_helper
-	{
-		template<typename T, template<auto, auto> typename rational_type, typename A0, typename ...As>
-		static constexpr auto apply(const polynomial<T, rational_type, A0, As...>)
-		{
-			return typename polynomial<T, rational_type, A0>::X{} *div_monomial_helper<deg - 1>::template apply<T, rational_type, As...>(polynomial<T, rational_type, As...> {});
-		}
-	};
-
-
-	template<>
-	struct div_monomial_helper<0>
-	{
-		template<typename T, template<auto, auto> typename rational_type, typename A0, typename ...As>
-		static constexpr auto apply(const polynomial<T, rational_type, A0, As...> p)
-		{
-			return p;
 		}
 	};
 
@@ -573,6 +551,12 @@ namespace euler {
 	using rational32 = rational<int32, int32<p>, int32<q>>;
 	template<int64_t p, int64_t q>
 	using rational64 = rational<int64, int64<p>, int64<q>>;
+
+	template<typename T, typename ...coefficients>
+	using polynomial32 = polynomial<T, rational32, coefficients...>;
+
+	template<typename T, typename ...coefficients>
+	using polynomial64 = polynomial<T, rational64, coefficients...>;
 
 	template<int64_t p>
 	struct integer : rational64<p, 1>
