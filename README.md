@@ -39,7 +39,7 @@ euler::gcd<euler::int32<12>, euler::int32<18>>::val // 6
 euler::polynomial64<T, rational...>
 ```
 T can be any type castable to float and double
-supports operators `+,*,-` (TODO: division)
+supports operators `+,*,-,/`
 supports evaluation on compile time constant 
 
 ### taylor series
