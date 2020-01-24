@@ -18,6 +18,30 @@
     <ClInclude Include="euler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="forward_declarations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gcd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rational.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="type_at.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">

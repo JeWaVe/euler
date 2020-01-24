@@ -1,6 +1,7 @@
 #include "euler.h"
 
 using namespace euler;
+
 // how to implement a taylor serie for x / (e^x - 1) (https://fr.wikipedia.org/wiki/Nombre_de_Bernoulli#D%C3%A9finition_par_une_fonction_g%C3%A9n%C3%A9ratrice)
 
 template<int64_t i>

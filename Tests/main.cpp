@@ -17,6 +17,10 @@ int main(int argc, char* argv[]) {
 		return 1;
 	if (test_atan() != 0)
 		return 1;
+	if (test_asin() != 0)
+		return 1;
+	if (test_asinh() != 0)
+		return 1;
 	::printf("OK\n");
 	return 0;
 }

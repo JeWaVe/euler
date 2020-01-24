@@ -127,7 +127,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="base_types.h" />
+    <ClInclude Include="constants.h" />
+    <ClInclude Include="defines.h" />
     <ClInclude Include="euler.h" />
+    <ClInclude Include="forward_declarations.h" />
+    <ClInclude Include="gcd.h" />
+    <ClInclude Include="helpers.h" />
+    <ClInclude Include="rational.h" />
+    <ClInclude Include="type_at.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />
