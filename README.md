@@ -29,6 +29,10 @@ euler::integers::alternate<k>::val // (-1)^k (int64_t)
 euler::integers::factorial<n>::val // n! (int64_t)
 ```
 
+- natural powers
+```cpp
+euler::integers::pow<n, p>::val // n^p
+
 ### greatest common divisor
 ```cpp
 euler::gcd<euler::int32<12>, euler::int32<18>>::val // 6
@@ -52,6 +56,9 @@ Some important functions are expressed as polynomial (taylor series in zero), su
 - sinh
 - cosh
 - geometric_sum (1/(1-x))
+- asin
+- asinh
+- atanh
 
 ### custom taylor serie
 here is an example for the function [x / (e^x - 1)](https://fr.wikipedia.org/wiki/Nombre_de_Bernoulli#D%C3%A9finition_par_une_fonction_g%C3%A9n%C3%A9ratrice):
