@@ -1,3 +1,6 @@
+# deprecated
+This repo is NOT maintained anymore - all code has moved to [aerobus](https://github.com/aerobus-open-source/aerobus)
+
 # euler
 compile time polynomials
 
